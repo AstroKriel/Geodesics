@@ -4,7 +4,7 @@
 import os, re
 import numpy as np
 
-from MyLibrary import TheUsefuls
+from MyLibrary import UsefulFuncs
 
 
 ## ###############################################################
@@ -13,9 +13,9 @@ from MyLibrary import TheUsefuls
 def animateFrames(filepath_frames, shape_name):
   print("Animating plots...")
   ## create filepath to where plots are saved
-  filepath_input = TheUsefuls.createFilePath([filepath_frames, shape_name + "_%*.png"])
+  filepath_input = UsefulFuncs.createFilePath([filepath_frames, shape_name + "_%*.png"])
   ## create filepath to where animation should be saved
-  filepath_output = TheUsefuls.createFilePath([filepath_frames, "..", shape_name + ".mp4"])
+  filepath_output = UsefulFuncs.createFilePath([filepath_frames, "..", shape_name + ".mp4"])
   ## animate plot frames
   os.system("ffmpeg -y -start_number 0 -i {} -vb 40M -framerate 40 -vf scale=1440:-1 -vcodec mpeg4 {}".format(
     filepath_input,

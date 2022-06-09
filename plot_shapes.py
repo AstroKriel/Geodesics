@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 import cmasher as cmr
 
 ## import user libraries
-from MyLibrary import TheUsefuls, PlotFuncs, Shapes, Opps
+from MyLibrary import MyTools, PlotFuncs, UsefulFuncs
 
 
 ## ###############################################################
@@ -67,7 +67,7 @@ def funcPlotShape(
   ## initialise the grid for plotting contours
   A1, A2 = np.meshgrid(coords_contour, coords_contour)
   ## rotate the figure
-  for ang_val, ang_index in TheUsefuls.loopListWithUpdates(list_angles):
+  for ang_val, ang_index in UsefulFuncs.loopListWithUpdates(list_angles):
     ## #################
     ## PLOT EACH CONTOUR
     ## #################
@@ -79,7 +79,7 @@ def funcPlotShape(
       ## get contour color
       if bool_multicolors:
         color = [ tuple(my_colormap[
-          TheUsefuls.getIndexClosestValue(domain_vals, coord)
+          UsefulFuncs.getIndexClosestValue(domain_vals, coord)
         ]) ]
       else: color = "black"
       ## plot contours
@@ -116,7 +116,7 @@ def funcPlotShape(
     else:
       fig_name = shape_name + ".png"
       print("Saved figure:", fig_name)
-    fig_filepath = TheUsefuls.createFilePath([filepath_plot, fig_name])
+    fig_filepath = UsefulFuncs.createFilePath([filepath_plot, fig_name])
     plt.savefig(fig_filepath)
     ## clear axis
     ax.clear()
@@ -135,8 +135,8 @@ def main():
   ## INITIALISE PROGRAM
   ## ##################
   ## current working directory
-  filepath_plot = os.getcwd() + "/RotatingShapes"
-  TheUsefuls.createFolder(filepath_plot)
+  filepath_plot = os.getcwd() + "/RotatingTools.Shapes"
+  UsefulFuncs.createFolder(filepath_plot)
   ## program workflow
   bool_plot_frame   = 1
   bool_create_video = 1
@@ -150,9 +150,9 @@ def main():
   plot_args = {
       "bbox":(-1.0, 1.0),
       "shape_name":"gyroid_sphere_"+col_map,
-      "shape_func":Opps.intersect(
-          Shapes.gyroid,
-          functools.partial(Shapes.sphere, c=1.25)
+      "shape_func":MyTools.Opperations.intersect(
+          MyTools.Shapes.gyroid,
+          functools.partial(MyTools.Shapes.sphere, c=1.25)
       ),
       "res_slices":30,
       "bool_dark_theme":False,
@@ -166,9 +166,9 @@ def main():
   # plot_args = {
   #     "bbox":(-2.5, 2.5),
   #     "shape_name":("gt_sphere_" + col_map),
-  #     "shape_func":Opps.subtract(
-  #         Shapes.goursatTangle,
-  #         functools.partial(Shapes.sphere, c=2.25)
+  #     "shape_func":Tools.Opperations.subtract(
+  #         Tools.Shapes.goursatTangle,
+  #         functools.partial(Tools.Shapes.sphere, c=2.25)
   #     ),
   #     "res_slices":30,
   #     "bool_dark_theme":False,
@@ -192,11 +192,11 @@ def main():
   ## pot and animate the shape rotating
   if bool_create_video:
     ## create a folder where plots of the shape will be saved
-    filepath_frames = TheUsefuls.createFilePath([
+    filepath_frames = UsefulFuncs.createFilePath([
       filepath_plot,
       plot_args["shape_name"]
     ])
-    TheUsefuls.createFolder(filepath_frames)
+    UsefulFuncs.createFolder(filepath_frames)
     funcPlotShape(
       filepath_plot = filepath_frames,
       list_angles   = np.linspace(0, 360, 100),
