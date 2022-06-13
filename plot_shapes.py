@@ -16,7 +16,7 @@ from MyLibrary import MyTools, PlotFuncs, UsefulFuncs
 
 
 ## ###############################################################
-## PREPARE TERMINAL/WORKSPACE/CODE
+## PREPARE TERMINAL / WORKSPACE / CODE
 ## ###############################################################
 os.system("clear") # clear terminal window
 plt.switch_backend('agg') # use a non-interactive plotting backend
@@ -24,7 +24,7 @@ warnings.simplefilter('ignore', UserWarning) # hide warnings
 
 
 ## ###############################################################
-## PLOTTING
+## PLOTTING FUNCTION
 ## ###############################################################
 def funcPlotShape(
     filepath_plot,
@@ -140,12 +140,12 @@ def main():
   ## program workflow
   bool_plot_frame   = 1
   bool_create_video = 1
-  ## colormap
-  col_map = "tropical_r" # guppy, pride, fusion, viola, waterlily, sunburst_r, jungle, rainforest, tropical
+  ## colormap: guppy, pride, fusion, viola, waterlily, sunburst_r, jungle, rainforest, tropical
+  col_map = "tropical_r"
 
-  ## ################
-  ## DEFINE THE SHAPE
-  ## ################
+  ## ##############################
+  ## DEFINE SHAPE + PLOT PROPERTIES
+  ## ##############################
   ## gyroid
   plot_args = {
       "bbox":(-1.0, 1.0),

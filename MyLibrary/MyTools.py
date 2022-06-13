@@ -1,6 +1,16 @@
 import numpy as np
 
 
+class Torus():
+  def implicit(x, y, z, r2=2, r1=1):
+    return z*z - r2*r2 + ( r1 - np.sqrt(x*x + y*y) )**2
+  def parameterized(theta, phi, r1=2, r2=1):
+    x = (r1 + r2*np.cos(theta)) * np.cos(phi)
+    y = (r1 + r2*np.cos(theta)) * np.sin(phi)
+    z = r2 * np.sin(theta)
+    return [x, y, z]
+
+
 class Shapes():
   def sphere(x, y, z, r=1):
     return x*x + y*y + z*z - r*r
@@ -35,6 +45,7 @@ class Shapes():
     return x**2 + y**2 + z**2 - c**2
   def tunnels(x, y, z):
     return np.cos(x) + np.cos(y) + np.cos(z)
+
 
 class Opperations():
   def translate(fn,x,y,z):

@@ -25,8 +25,8 @@ def animateFrames(filepath_frames, shape_name):
   print(" ")
 
 
-def plotImplicitShape(
-    ax, implicit_func,
+def plotImplicit(
+    ax, func_shape,
     bbox = (-1, 1),
     res_contour = 70,
     res_slices  = 30,
@@ -41,20 +41,22 @@ def plotImplicitShape(
   coords_slice = np.linspace(ax_min, ax_max, res_slices)
   ## initialise the grid for plotting contours
   A1, A2 = np.meshgrid(coords_contour, coords_contour)
+  ## define plot style
+  args = {"colors":color, "alpha":alpha, "zorder":3}
   ## plot each contour
   for coord in coords_slice:
     ## evaluate the function
-    X = implicit_func(coord, A1, A2)
-    Y = implicit_func(A1, coord, A2)
-    Z = implicit_func(A1, A2, coord)
+    X = func_shape(coord, A1, A2)
+    Y = func_shape(A1, coord, A2)
+    Z = func_shape(A1, A2, coord)
     ## plot contours in the YZ plane
-    try: ax.contour(X+coord, A1, A2, [coord], zdir="x", colors=color, alpha=alpha, linewidth=2, linestyle="-")
+    try: ax.contour(X+coord, A1, A2, [coord], zdir="x", **args)
     except UserWarning: continue
     ## plot contours in the XZ plane
-    try: ax.contour(A1, Y+coord, A2, [coord], zdir="y", colors=color, alpha=alpha, linewidth=2, linestyle="-")
+    try: ax.contour(A1, Y+coord, A2, [coord], zdir="y", **args)
     except UserWarning: continue
     ## plot contours in the XY plane
-    try: ax.contour(A1, A2, Z+coord, [coord], zdir="z", colors=color, alpha=alpha, linewidth=2, linestyle="-")
+    try: ax.contour(A1, A2, Z+coord, [coord], zdir="z", **args)
     except UserWarning: continue
 
 
