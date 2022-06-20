@@ -1,14 +1,14 @@
 ## ###############################################################
 ## MODULES
 ## ###############################################################
-import os, re
+import os
 import numpy as np
 
 from MyLibrary import UsefulFuncs
 
 
 ## ###############################################################
-## FUNCTIONS
+## ANIMATING PNG-FRAMES INTO MP4
 ## ###############################################################
 def animateFrames(filepath_frames, shape_name):
   print("Animating plots...")
@@ -17,23 +17,26 @@ def animateFrames(filepath_frames, shape_name):
   ## create filepath to where animation should be saved
   filepath_output = UsefulFuncs.createFilePath([filepath_frames, "..", shape_name + ".mp4"])
   ## animate plot frames
-  os.system("ffmpeg -y -start_number 0 -i {} -vb 40M -framerate 40 -vf scale=1440:-1 -vcodec mpeg4 {}".format(
-    filepath_input,
-    filepath_output
-  ))
+  os.system(f"ffmpeg -y -start_number 0 -i {filepath_input} -vb 40M -framerate 40 -vf scale=1440:-1 -vcodec mpeg4 {filepath_output}")
   print("Animation finished: " + filepath_output)
   print(" ")
 
 
+## ###############################################################
+## PLOT IMPLICITLY DEFINED SURFACE
+## ###############################################################
+## from: https://stackoverflow.com/a/4687582
 def plotImplicit(
     ax, func_shape,
-    bbox = (-1, 1),
+    bbox        = (-1, 1),
     res_contour = 70,
     res_slices  = 30,
-    color = "black",
-    alpha = 0.75
+    color       = "black",
+    alpha       = 0.75
   ):
-  ## get box domain
+  ## define plot style
+  args = {"colors":color, "alpha":alpha, "zorder":3}
+  ## extract box domain bounds
   ax_min, ax_max = bbox
   ## initialise the coordinates where contours are evaluated
   coords_contour = np.linspace(ax_min, ax_max, res_contour) 
@@ -41,8 +44,6 @@ def plotImplicit(
   coords_slice = np.linspace(ax_min, ax_max, res_slices)
   ## initialise the grid for plotting contours
   A1, A2 = np.meshgrid(coords_contour, coords_contour)
-  ## define plot style
-  args = {"colors":color, "alpha":alpha, "zorder":3}
   ## plot each contour
   for coord in coords_slice:
     ## evaluate the function
@@ -60,6 +61,4 @@ def plotImplicit(
     except UserWarning: continue
 
 
-## ###############################################################
 ## END OF LIBRARY
-## ###############################################################

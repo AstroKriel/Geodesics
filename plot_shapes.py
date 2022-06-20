@@ -1,10 +1,7 @@
-#!/usr/bin/env python3
-
 ## ###############################################################
 ## MODULES
 ## ###############################################################
 import os
-from turtle import Shape
 import warnings
 import functools
 import numpy as np
@@ -24,22 +21,22 @@ warnings.simplefilter('ignore', UserWarning) # hide warnings
 
 
 ## ###############################################################
-## PLOTTING FUNCTION
+## HELPER PLOTTING FUNCTION
 ## ###############################################################
 def funcPlotShape(
     filepath_plot,
     shape_name, shape_func,
-    list_angles = [0],
-    bbox        = (-1, 1),
-    num_cols    = 15,
-    res_contour = 70,
-    res_slices  = 30,
+    list_angles      = [ 0 ],
+    bbox             = (-1, 1),
+    num_cols         = 15,
+    res_contour      = 70,
+    res_slices       = 30,
     bool_dark_theme  = True,
     bool_multicolors = True,
-    col_map_str = "cmr.tropical",
-    bool_plot_x = True,
-    bool_plot_y = True,
-    bool_plot_z = True
+    col_map_str      = "cmr.tropical",
+    bool_plot_x      = True,
+    bool_plot_y      = True,
+    bool_plot_z      = True
   ):
   ## #################
   ## INITIALISE FIGIRE
@@ -146,6 +143,8 @@ def main():
   ## ##############################
   ## DEFINE SHAPE + PLOT PROPERTIES
   ## ##############################
+  ## the user should un-comment one of the following dictionaries (or create their own)
+
   ## gyroid
   plot_args = {
       "bbox":(-1.0, 1.0),
@@ -162,6 +161,7 @@ def main():
       "bool_plot_y":True,
       "bool_plot_z":True
   }
+
   # ## tangle cube
   # plot_args = {
   #     "bbox":(-2.5, 2.5),
@@ -211,6 +211,4 @@ if __name__ == "__main__":
   main()
 
 
-## ###############################################################
 ## END OF PROGRAM
-## ###############################################################

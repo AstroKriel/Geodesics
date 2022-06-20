@@ -17,7 +17,9 @@ def createFolder(folder_name):
     else: print("WARNING: Folder already exists (folder not created). \n\t" + folder_name + "\n")
 
 def createFilePath(folder_names):
-    return re.sub( '/+', '/', "/".join([ folder for folder in folder_names if folder != "" ]) )
+    return re.sub( '/+', '/', "/".join([
+      folder for folder in folder_names if folder != ""
+    ]) )
 
 
 ## ###############################################################
@@ -35,9 +37,7 @@ def loopListWithUpdates(input_list, bool_hide_updates=False):
     )
 
 def getIndexClosestValue(input_vals, target_value):
-    return np.argmin(np.abs(np.array(input_vals) - target_value))
+    return np.argmin(np.abs( np.array(input_vals) - target_value ))
 
 
-## ###############################################################
 ## END OF LIBRARY
-## ###############################################################

@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 ## ###############################################################
 ## MODULES
 ## ###############################################################
@@ -23,7 +21,7 @@ warnings.simplefilter('ignore', UserWarning) # hide warnings
 
 
 ## ###############################################################
-## FUNCTIONS
+## HELPER FUNCTION: CALCULATE SOLN TO TORUS GEODESIC EQN
 ## ###############################################################
 def solnToGeodesicEqn(x, t, r1=2, r2=1):
   ## integration constants
@@ -47,37 +45,46 @@ def main():
   ## torus parameters
   r1, r2 = 2, 1
   ax_max = r1 + r2
-  ## generate torus data points
-  res_surface  = 100
-  angle_domain = np.linspace(0, 2.*np.pi, res_surface)
-  theta_input, phi_input = np.meshgrid(angle_domain, angle_domain)
-  [ x_torus, y_torus, z_torus ] = MyTools.Torus.parameterized(
-    theta = theta_input,
-    phi   = phi_input,
-    r1    = r1,
-    r2    = r2 * 0.9
-  )
+  ## initialise figure
+  fig = plt.figure()
+  ax = fig.add_subplot(111, projection="3d")
+  # ## ##################
+  # ## PLOT TORUS SURFACE
+  # ## ##################
+  # res_surface  = 100
+  # angle_domain = np.linspace(0, 2.*np.pi, res_surface)
+  # theta_input, phi_input = np.meshgrid(angle_domain, angle_domain)
+  # [ x_torus, y_torus, z_torus ] = MyTools.Torus.parameterized(
+  #   theta = theta_input,
+  #   phi   = phi_input,
+  #   r1    = r1,
+  #   r2    = r2 * 0.9
+  # )
+  # ax.plot_surface(x_torus, y_torus, z_torus, rstride=5, cstride=5)
+  ## ###################
+  ## PLOT SHAPE CONTOURS
+  ## ###################
   func_shape = partial(
     MyTools.Torus.implicit,
     r1 = r1,
     r2 = r2
   )
-  ## initialise figure
-  fig = plt.figure()
-  ax = fig.add_subplot(111, projection="3d")
-  ## plot surface of the torus
-  # ax.plot_surface(x_torus, y_torus, z_torus, rstride=5, cstride=5)
   PlotFuncs.plotImplicit(
     ax, func_shape,
-    bbox = (-ax_max, ax_max),
+    bbox        = (-ax_max, ax_max),
     res_contour = 100,
     res_slices  = 30,
     alpha       = 0.25
   )
+  ## #################
+  ## SET FIGURE BOUNDS
+  ## #################
   ax.set_xlim(-ax_max, ax_max)
   ax.set_ylim(-ax_max, ax_max)
   ax.set_zlim(-ax_max, ax_max)
-  ## solve the geodesic equation
+  ## #######################################
+  ## SOLVE + PLOT THE GEODESIC EQUATION SOLN
+  ## #######################################
   num_geo_orbits = 100
   num_geo_points = 10**3
   t  = np.linspace(0, num_geo_orbits*2*np.pi, num_geo_points)
@@ -110,6 +117,4 @@ if __name__ == "__main__":
   main()
 
 
-## ###############################################################
 ## END OF PROGRAM
-## ###############################################################
