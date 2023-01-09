@@ -19,11 +19,11 @@ class Node():
   def __eq__(self, other) -> bool:
     if not isinstance(other, Node): return False
     return self.pos == other.pos
-  
+
   def __le__(self, other) -> bool:
     if not isinstance(other, Node): return False
     return self.f < other.f
-  
+
   def __gt__(self, other) -> bool:
     if not isinstance(other, Node): return False
     return self.f > other.f
@@ -93,8 +93,10 @@ def aStar(maze, first_cell, last_cell) -> list:
       neighbour = Node(parent=current_node, pos=neighbour_pos)
       ## define score values
       neighbour.g = current_node.g + 1
-      neighbour.h = (neighbour.pos[0] - last_node.pos[0])**2 +\
-                    (neighbour.pos[1] - last_node.pos[1])**2
+      neighbour.h = np.sqrt(
+        (neighbour.pos[0] - last_node.pos[0])**2 +
+        (neighbour.pos[1] - last_node.pos[1])**2
+      )
       neighbour.f = neighbour.g + neighbour.h
       ## check that the neighbour is not already in the open list
       if any([
@@ -200,7 +202,7 @@ def main():
   axs[0].imshow(maze_backup, cmap=cmap, norm=norm)
   mappable = axs[1].imshow(soln, cmap=cmap, norm=norm)
   # fig.colorbar(mappable, ticks=range(nticks))
-  fig.savefig("astar.png")
+  fig.savefig("astar_2d.png")
   plt.close(fig)
   print("Saved figure.")
   print(" ")
