@@ -27,7 +27,7 @@ def animateFrames(filepath_frames, shape_name):
 ## ###############################################################
 ## from: https://stackoverflow.com/a/4687582
 def plotImplicit(
-    ax, func_shape,
+    ax, func,
     bbox        = (-1, 1),
     res_contour = 70,
     res_slices  = 30,
@@ -47,9 +47,9 @@ def plotImplicit(
   ## plot each contour
   for coord in coords_slice:
     ## evaluate the function
-    X = func_shape(coord, A1, A2)
-    Y = func_shape(A1, coord, A2)
-    Z = func_shape(A1, A2, coord)
+    X = func(coord, A1, A2)
+    Y = func(A1, coord, A2)
+    Z = func(A1, A2, coord)
     ## plot contours in the YZ plane
     try: ax.contour(X+coord, A1, A2, [coord], zdir="x", **args)
     except UserWarning: continue

@@ -23,9 +23,9 @@ warnings.simplefilter('ignore', UserWarning) # hide warnings
 ## ###############################################################
 ## HELPER PLOTTING FUNCTION
 ## ###############################################################
-def funcPlotShape(
+def plotImplicit(
     filepath_plot,
-    shape_name, shape_func,
+    name, func,
     list_angles      = [ 0 ],
     bbox             = (-1, 1),
     num_cols         = 15,
@@ -70,9 +70,9 @@ def funcPlotShape(
     ## #################
     for coord in coords_slice:
       ## evaluate the function
-      X = shape_func(coord, A1, A2)
-      Y = shape_func(A1, coord, A2)
-      Z = shape_func(A1, A2, coord)
+      X = func(coord, A1, A2)
+      Y = func(A1, coord, A2)
+      Z = func(A1, A2, coord)
       ## get contour color
       if bool_multicolors:
         color = [ tuple(my_colormap[
@@ -109,9 +109,9 @@ def funcPlotShape(
     ## SAVE FIGURE
     ## ###########
     if len(list_angles) > 3:
-      fig_name = shape_name + "_{0:03}".format(int(ang_index)) + ".png"
+      fig_name = name + "_{0:03}".format(int(ang_index)) + ".png"
     else:
-      fig_name = shape_name + ".png"
+      fig_name = name + ".png"
       print("Saved figure:", fig_name)
     fig_filepath = UsefulFuncs.createFilePath([filepath_plot, fig_name])
     plt.savefig(fig_filepath)
@@ -121,7 +121,7 @@ def funcPlotShape(
   plt.close()
   ## animate frames
   if len(list_angles) > 3:
-    PlotFuncs.animateFrames(filepath_plot, shape_name)
+    PlotFuncs.animateFrames(filepath_plot, name)
 
 
 ## ###############################################################
@@ -148,8 +148,8 @@ def main():
   ## gyroid
   plot_args = {
       "bbox":(-1.0, 1.0),
-      "shape_name":"gyroid_sphere_"+col_map,
-      "shape_func":MyTools.Opperations.intersect(
+      "name":"gyroid_sphere_"+col_map,
+      "func":MyTools.Opperations.intersect(
           MyTools.Shapes.gyroid,
           functools.partial(MyTools.Shapes.sphere, c=1.25)
       ),
@@ -165,8 +165,8 @@ def main():
   # ## tangle cube
   # plot_args = {
   #     "bbox":(-2.5, 2.5),
-  #     "shape_name":("gt_sphere_" + col_map),
-  #     "shape_func":Tools.Opperations.subtract(
+  #     "name":("gt_sphere_" + col_map),
+  #     "func":Tools.Opperations.subtract(
   #         Tools.Shapes.goursatTangle,
   #         functools.partial(Tools.Shapes.sphere, c=2.25)
   #     ),
@@ -184,7 +184,7 @@ def main():
   ## ##############
   ## plot a single frame
   if bool_plot_frame:
-    funcPlotShape(
+    plotImplicit(
       filepath_plot = filepath_plot,
       list_angles = [ 0 ],
       **plot_args
@@ -194,10 +194,10 @@ def main():
     ## create a folder where plots of the shape will be saved
     filepath_frames = UsefulFuncs.createFilePath([
       filepath_plot,
-      plot_args["shape_name"]
+      plot_args["name"]
     ])
     UsefulFuncs.createFolder(filepath_frames)
-    funcPlotShape(
+    plotImplicit(
       filepath_plot = filepath_frames,
       list_angles   = np.linspace(0, 360, 100),
       **plot_args

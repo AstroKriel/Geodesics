@@ -64,13 +64,13 @@ def main():
   ## ###################
   ## PLOT SHAPE CONTOURS
   ## ###################
-  func_shape = partial(
+  func_implicit = partial(
     MyTools.Torus.implicit,
     r1 = r1,
     r2 = r2
   )
   PlotFuncs.plotImplicit(
-    ax, func_shape,
+    ax, func_implicit,
     bbox        = (-ax_max, ax_max),
     res_contour = 100,
     res_slices  = 30,
