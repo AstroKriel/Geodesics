@@ -212,13 +212,14 @@ def main():
   start_time = time.time()
   ## generate data
   print("Generating point cloud...")
-  verts, faces, normals = genPointCloud(implicit_func=gyroid, res=20)
+  res = 20
+  verts, faces, normals = genPointCloud(implicit_func=gyroid, res=res)
   print("Computing adjacency dictionary...")
   dict_adj = genAdjDict_parallel(verts.shape[0], faces.shape[0], faces)
   ## define start and end points
   tree = KDTree(verts)
   _, start_vi = tree.query([20, 20,  0])
-  _, end_vi   = tree.query([ 0,  0, 20])
+  _, end_vi   = tree.query([ 0, 10, 20])
   start_point = verts[start_vi,:]
   end_point   = verts[end_vi,:]
   printPoint(start_point, "start point: ")
@@ -245,6 +246,15 @@ def main():
     mlab.points3d(start_point[0], start_point[1], start_point[2])
     mlab.points3d(end_point[0], end_point[1], end_point[2])
     mlab.plot3d(x_geo, y_geo, z_geo, range(len(x_geo)), tube_radius=0.25)
+  ## plot pseudo-axis
+  mlab.points3d(0, 0, 0)
+  mlab.points3d(2, 0, 0)
+  mlab.points3d(0, 4, 0)
+  mlab.points3d(0, 0, 6)
+  mlab.plot3d([0, 2.0], [0, 0], [0, 0], tube_radius=0.1)
+  mlab.plot3d([0, 0], [0, 4.0], [0, 0], tube_radius=0.1)
+  mlab.plot3d([0, 0], [0, 0], [0, 6.0], tube_radius=0.1)
+  mlab.points3d(res,res,res)
   ## show canvas
   mlab.show()
   end_time = time.time()
