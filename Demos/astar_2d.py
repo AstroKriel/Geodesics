@@ -1,13 +1,25 @@
 ## based on: Nicholas-Swift/astar.py
 ## https://gist.github.com/Nicholas-Swift/003e1932ef2804bebef2710527008f44
 
+
+## ###############################################################
+## MODULES
+## ###############################################################
 import os, time, copy
 import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 
+
+## ###############################################################
+## PREPARE WORKSPACE
+## ###############################################################
 os.system("clear")
 
+
+## ###############################################################
+## NODE CLASS
+## ###############################################################
 class Node():
   def __init__(self, parent=None, pos=None):
     self.parent = parent
@@ -35,20 +47,23 @@ class Node():
     return str(self.pos)
 
 
-def aStar(maze, first_cell, last_cell) -> list:
+## ###############################################################
+## SOLVER
+## ###############################################################
+def aStar2D(maze, start_cell, end_cell) -> list:
   ## check dimensions of the 2D maze
   nrows = len(maze) - 1
   ncols = len(maze[0]) - 1
   ## create start and finish nodes
-  first_node = Node(parent=None, pos=first_cell)
-  last_node  = Node(parent=None, pos=last_cell)
+  start_node = Node(parent=None, pos=start_cell)
+  end_node  = Node(parent=None, pos=end_cell)
   ## initialize empty lists
   list_opened_nodes  = []
   list_closed_nodes  = []
   soln_paths_grouped = []
   soln_costs_grouped = []
   ## initialise the open list with the start cell
-  list_opened_nodes.append(first_node)
+  list_opened_nodes.append(start_node)
   ## search until the shortest solution has been found
   while len(list_opened_nodes) > 0:
     ## GRAB THE NEXT MOST FAVOURABLE CELL
@@ -63,7 +78,7 @@ def aStar(maze, first_cell, last_cell) -> list:
     list_opened_nodes.pop(current_index)
     ## CHECK IF THE GOAL HAS BEEN FOUND
     ## ================================
-    if current_node == last_node:
+    if current_node == end_node:
       soln_path = []
       prev_node = current_node
       while prev_node is not None:
@@ -94,8 +109,8 @@ def aStar(maze, first_cell, last_cell) -> list:
       ## define score values
       neighbour.g = current_node.g + 1
       neighbour.h = np.sqrt(
-        (neighbour.pos[0] - last_node.pos[0])**2 +
-        (neighbour.pos[1] - last_node.pos[1])**2
+        (neighbour.pos[0] - end_node.pos[0])**2 +
+        (neighbour.pos[1] - end_node.pos[1])**2
       )
       neighbour.f = neighbour.g + neighbour.h
       ## check that the neighbour is not already in the open list
@@ -117,10 +132,14 @@ def aStar(maze, first_cell, last_cell) -> list:
   return soln_paths_grouped, soln_costs_grouped
 
 
+## ###############################################################
+## PROGRAM MAIN
+## ###############################################################
 def main():
   start_time = time.time()
-  ## initialise figure + colormap
+  ## initialise figure
   fig, axs = plt.subplots(nrows=1, ncols=2, sharey=True, tight_layout=True, figsize=(10,5))
+  ## define colormap
   cmap = mpl.colors.ListedColormap([
     "white",
     "black",
@@ -129,7 +148,7 @@ def main():
   ])
   nticks = cmap.N + 1
   norm = mpl.colors.BoundaryNorm(range(nticks), nticks)
-  ## define maze (modified from: https://www.dcode.fr/maze-generator)
+  ## define maze (from: https://www.dcode.fr/maze-generator)
   maze = [
     [0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,0,0,0,0,1,0,1,0,1,0,1,0,0,0,0,0,0,0,1],
@@ -173,17 +192,17 @@ def main():
     [1,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0],
     [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0]
   ]
-  soln = copy.deepcopy(maze)
+  maze_soln   = copy.deepcopy(maze)
   maze_backup = copy.deepcopy(maze)
   ## define start + finish points
   nrows, ncols = np.array(maze).shape
-  first_cell = (0, 0)
-  last_cell = (nrows-1, ncols-1)
-  maze_backup[first_cell[0]][first_cell[1]] = 2
-  maze_backup[last_cell[0]][last_cell[1]] = 2
+  start_cell = (0, 0)
+  end_cell   = (nrows-1, ncols-1)
+  maze_backup[start_cell[0]][start_cell[1]] = 2
+  maze_backup[end_cell[0]][end_cell[1]] = 2
   ## compute possible solutions
   print("Solving maze...")
-  soln_path_grouped, soln_cost_grouped = aStar(maze, first_cell, last_cell)
+  soln_path_grouped, soln_cost_grouped = aStar2D(maze, start_cell, end_cell)
   if len(soln_path_grouped) > 0:
     print(f"Found {len(soln_path_grouped)} possible solution(s)!")
     ## plot all solutions
@@ -196,12 +215,11 @@ def main():
     ## draw shorest solution
     for pos in soln_path_grouped[soln_index]:
       row, col = pos
-      soln[row][col] = 3
+      maze_soln[row][col] = 3
   else: print("Could not find a solution!")
   ## plot maze + best solution
   axs[0].imshow(maze_backup, cmap=cmap, norm=norm)
-  mappable = axs[1].imshow(soln, cmap=cmap, norm=norm)
-  # fig.colorbar(mappable, ticks=range(nticks))
+  axs[1].imshow(maze_soln,   cmap=cmap, norm=norm)
   fig.savefig("astar_2d.png")
   plt.close(fig)
   print("Saved figure.")
@@ -210,7 +228,11 @@ def main():
   print(f"Elapsed time: {end_time - start_time:.3f} seconds")
 
 
+## ###############################################################
+## PROGRAM ENTRY POINT
+## ###############################################################
 if __name__ == '__main__':
   main()
+
 
 ## END OF PROGRAM

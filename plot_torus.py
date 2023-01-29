@@ -1,29 +1,27 @@
 ## ###############################################################
 ## MODULES
 ## ###############################################################
-import os
-import warnings
+import os, warnings, functools
 import numpy as np
 import matplotlib.pyplot as plt
 
-from functools import partial
 from scipy.integrate import odeint
 
 ## import user libraries
-from MyLibrary import MyTools, PlotFuncs
+from MyLibrary import PlotFuncs
 
 
 ## ###############################################################
-## PREPARE TERMINAL / WORKSPACE / CODE
+## PREPARE WORKSPACE
 ## ###############################################################
 os.system("clear") # clear terminal window
 warnings.simplefilter('ignore', UserWarning) # hide warnings
 
 
 ## ###############################################################
-## HELPER FUNCTION: CALCULATE SOLN TO TORUS GEODESIC EQN
+## SOLUTION TO GEODESIC EQUATION FOR TORUS
 ## ###############################################################
-def solnToGeodesicEqn(x, t, r1=2, r2=1):
+def geodesicEqnSoln(x, t, r1=2, r2=1):
   ## integration constants
   k = r1 + r2/2 # k = h
   l = 1 / (r2 * r2)
@@ -35,77 +33,66 @@ def solnToGeodesicEqn(x, t, r1=2, r2=1):
     l - k*k / (r1*r2 + r2*r2*np.cos(theta))**2
   ]))
   dphi_dt = k / (r1 + r2*np.cos(theta))**2
-  return [dtheta_dt, dphi_dt]
+  return [ dtheta_dt, dphi_dt ]
 
+
+## ###############################################################
+## TORUS EQUATIONS
+## ###############################################################
+class Torus():
+  def implicit(x, y, z, r2=2, r1=1):
+    return z*z - r2*r2 + ( r1 - np.sqrt(x*x + y*y) )**2
+
+  def parameterized(theta, phi, r1=2, r2=1):
+    x = (r1 + r2*np.cos(theta)) * np.cos(phi)
+    y = (r1 + r2*np.cos(theta)) * np.sin(phi)
+    z = r2 * np.sin(theta)
+    return x, y, z
 
 ## ###############################################################
 ## MAIN PROGRAM
 ## ###############################################################
 def main():
   ## torus parameters
-  r1, r2 = 2, 1
+  r1 = 2.0
+  r2 = 1.0
   ax_max = r1 + r2
   ## initialise figure
   fig = plt.figure()
   ax = fig.add_subplot(111, projection="3d")
-  # ## ##################
-  # ## PLOT TORUS SURFACE
-  # ## ##################
-  # res_surface  = 100
-  # angle_domain = np.linspace(0, 2.*np.pi, res_surface)
-  # theta_input, phi_input = np.meshgrid(angle_domain, angle_domain)
-  # [ x_torus, y_torus, z_torus ] = MyTools.Torus.parameterized(
-  #   theta = theta_input,
-  #   phi   = phi_input,
-  #   r1    = r1,
-  #   r2    = r2 * 0.9
-  # )
-  # ax.plot_surface(x_torus, y_torus, z_torus, rstride=5, cstride=5)
-  ## ###################
-  ## PLOT SHAPE CONTOURS
-  ## ###################
-  func_implicit = partial(
-    MyTools.Torus.implicit,
-    r1 = r1,
-    r2 = r2
-  )
+  ## plot torus isosurface
   PlotFuncs.plotImplicit(
-    ax, func_implicit,
+    ax,
+    func        = functools.partial(Torus.implicit, r1=r1, r2=r2),
     bbox        = (-ax_max, ax_max),
     res_contour = 100,
     res_slices  = 30,
     alpha       = 0.25
   )
-  ## #################
-  ## SET FIGURE BOUNDS
-  ## #################
-  ax.set_xlim(-ax_max, ax_max)
-  ax.set_ylim(-ax_max, ax_max)
-  ax.set_zlim(-ax_max, ax_max)
-  ## #######################################
-  ## SOLVE + PLOT THE GEODESIC EQUATION SOLN
-  ## #######################################
+  ## plot the geodesic equation soln
+  theta = -np.pi/4
+  phi   = 0.0
   num_geo_orbits = 100
   num_geo_points = 10**3
-  t  = np.linspace(0, num_geo_orbits*2*np.pi, num_geo_points)
-  x0 = [-np.pi/4, 0] # angles: theta, phi
-  func_geodesic = partial(
-    solnToGeodesicEqn,
-    r1 = r1,
-    r2 = r2
+  soln = odeint(
+    func = functools.partial(geodesicEqnSoln, r1=r1, r2=r2),
+    y0   = [ theta, phi ],
+    t    = np.linspace(0, 2*np.pi*num_geo_orbits, num_geo_points)
   )
-  soln = odeint(func_geodesic, x0, t)
-  theta_output = soln[:, 0]
-  phi_output   = soln[:, 1]
-  [ x_geo, y_geo, z_geo ] = MyTools.Torus.parameterized(
-    theta = theta_output,
-    phi   = phi_output,
+  [ x_geo, y_geo, z_geo ] = Torus.parameterized(
+    theta = soln[:, 0],
+    phi   = soln[:, 1],
     r1    = r1,
     r2    = r2
   )
   ## plot geodesic
   ax.plot(x_geo, y_geo, z_geo, color="r", ls="-", lw=2, zorder=5)
-  ## show plot
+  ## #################
+  ## SHOW FIGURE
+  ## #################
+  ax.set_xlim(-ax_max, ax_max)
+  ax.set_ylim(-ax_max, ax_max)
+  ax.set_zlim(-ax_max, ax_max)
   ax.view_init(36, 26)
   plt.show()
 

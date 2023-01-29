@@ -1,16 +1,26 @@
-import os, time
+## ###############################################################
+## MODULES
+## ###############################################################
+import time, skimage
 import numpy as np
-import matplotlib.pyplot as plt
-from skimage import measure
-from itertools import combinations
+import multiprocessing as mproc
+
+from mayavi import mlab
 from scipy.spatial import KDTree
 
-os.system("clear")
 
-
-## define helper functions
+## ###############################################################
+## HELPER FUNCTIONS
+## ###############################################################
 def gyroid(x, y, z):
   return np.cos(x) * np.sin(y) + np.cos(y) * np.sin(z) + np.cos(z) * np.sin(x)
+
+def euclidean(pos1, pos2):
+  return np.sqrt(
+    (pos2[0] - pos1[0])**2 +
+    (pos2[1] - pos1[1])**2 +
+    (pos2[2] - pos1[2])**2
+  )
 
 def getFlatNUniqueList(lol):
   return list(set([
@@ -19,6 +29,13 @@ def getFlatNUniqueList(lol):
     for elem in inner_list
   ]))
 
+def printPoint(point, pre=""):
+  print(f"{pre}{point[0]:.3f}, {point[1]:.3f}, {point[2]:.3f}")
+
+
+## ###############################################################
+## COMPUTE ISOSURFACE
+## ###############################################################
 def genPointCloud(implicit_func=gyroid, res=100):
   ## define domain range
   xmin, xmax = -np.pi, np.pi
@@ -30,13 +47,17 @@ def genPointCloud(implicit_func=gyroid, res=100):
     np.linspace(ymin, ymax, res),
     np.linspace(zmin, zmax, res)
   )
-  ## compute gyroid function at each point in domain
+  ## evaluate gyroid function at each point in domain
   F = implicit_func(x_3d, y_3d, z_3d)
   ## extract the gyroid isosurface
-  verts, faces, normals, values = measure.marching_cubes(F, 0)
+  verts, faces, normals, values = skimage.measure.marching_cubes(F, 0)
   ## return useful mesh information
   return verts, faces, normals
 
+
+## ###############################################################
+## GENERATE ADJACENCY DICTIONARY
+## ###############################################################
 def genAdjDict(verts, faces):
   num_points = verts.shape[0]
   num_faces  = faces.shape[0]
@@ -56,29 +77,31 @@ def genAdjDict(verts, faces):
   ## return adjacency dictionary
   return dict_adj
 
-def drawSurfaceMesh(ax, verts, faces):
-  num_faces = faces.shape[0]
-  ## draw points
-  ax.plot(verts[:,0], verts[:,1], verts[:,2], color="black", marker=".", ms=1, ls="")
-  ## draw conective mesh
-  for face_index in range(num_faces-1):
-    for comb_pair in list(combinations(faces[face_index], 2)):
-      ax.plot(
-        [ verts[comb_pair[0],0], verts[comb_pair[1],0] ],
-        [ verts[comb_pair[0],1], verts[comb_pair[1],1] ],
-        [ verts[comb_pair[0],2], verts[comb_pair[1],2] ],
-        color="black", ls="-", lw=0.1, zorder=1
-      )
+def genAdjDict_helper(point_index, num_faces, faces):
+    return point_index, getFlatNUniqueList([
+      [
+        elem
+        for elem in faces[face_index]
+        if not (elem == point_index)
+      ]
+      for face_index in range(num_faces-1)
+      if point_index in faces[face_index]
+    ])
 
-def drawAdjPoints(ax, dict_adj, verts, point_index=0):
-  dict_style = { "ls":"", "marker":"o", "ms":3, "zorder":5 }
-  ## draw point and its adjacent points
-  adj_indices_grouped = dict_adj[point_index]
-  ax.plot(verts[point_index,0], verts[point_index,1], verts[point_index,2], color="gold", **dict_style)
-  for adj_index in adj_indices_grouped:
-    ax.plot(verts[adj_index,0], verts[adj_index,1], verts[adj_index,2], color="green", **dict_style)
+def genAdjDict_parallel(num_points, num_faces, faces):
+  with mproc.Pool() as pool_obj:
+    return dict(pool_obj.starmap(
+      genAdjDict_helper,
+      [
+        (point_index, num_faces, faces)
+        for point_index in range(num_points)
+      ]
+    ))
 
 
+## ###############################################################
+## NODE CLASS
+## ###############################################################
 class Node():
   def __init__(self, parent_node=None, vi=None):
     self.parent_node = parent_node
@@ -106,27 +129,20 @@ class Node():
     return f"vertex index = {self.vi}"
 
 
-def printPoint(point, pre=""):
-  print(f"{pre}{point[0]:.3f}, {point[1]:.3f}, {point[2]:.3f}")
-
-def euclidean(pos1, pos2):
-  return np.sqrt(
-    (pos2[0] - pos1[0])**2 +
-    (pos2[1] - pos1[1])**2 +
-    (pos2[2] - pos1[2])**2
-  )
-
-def aStar(verts, dict_adj, first_vi, last_vi) -> list:
+## ###############################################################
+## FIND SHORTEST PATH BETWEEN TWO POINTS
+## ###############################################################
+def aStar(verts, dict_adj, start_vi, end_vi) -> list:
   ## create start and finish nodes
-  first_node = Node(vi = first_vi)
-  last_node  = Node(vi = last_vi)
+  start_node = Node(vi = start_vi)
+  end_node   = Node(vi = end_vi)
   ## initialize empty lists
   list_opened_nodes  = []
   list_closed_nodes  = []
   soln_paths_grouped = []
   soln_costs_grouped = []
   ## initialise the open list with the start cell
-  list_opened_nodes.append(first_node)
+  list_opened_nodes.append(start_node)
   ## search until the shortest solution has been found
   while len(list_opened_nodes) > 0:
     ## GRAB THE NEXT MOST FAVOURABLE CELL
@@ -141,7 +157,7 @@ def aStar(verts, dict_adj, first_vi, last_vi) -> list:
     list_opened_nodes.pop(current_ni)
     ## CHECK IF THE GOAL HAS BEEN REACHED
     ## ==================================
-    if current_node == last_node:
+    if current_node == end_node:
       soln_path = []
       ## trace solution path backwards from last to start node
       prev_node : Node = current_node
@@ -165,7 +181,7 @@ def aStar(verts, dict_adj, first_vi, last_vi) -> list:
       )
       dist_to_go = euclidean(
         verts[neighbour_node.vi,:],
-        verts[last_node.vi,:]
+        verts[end_node.vi,:]
       )
       neighbour_node.dist_trvld = current_node.dist_trvld + step_size
       neighbour_node.dist_to_go = dist_to_go
@@ -189,62 +205,57 @@ def aStar(verts, dict_adj, first_vi, last_vi) -> list:
   return soln_paths_grouped, soln_costs_grouped
 
 
-## define program main
+## ###############################################################
+## PROGRAM MAIN
+## ###############################################################
 def main():
   start_time = time.time()
   ## generate data
-  verts, faces, _ = genPointCloud(implicit_func=gyroid, res=20)
-  dict_adj = genAdjDict(verts, faces)
-  ## find point closest to target
-  tree = KDTree(verts)
-  _, last_vi = tree.query([0,0,9])
+  print("Generating point cloud...")
+  verts, faces, normals = genPointCloud(implicit_func=gyroid, res=20)
+  print("Computing adjacency dictionary...")
+  dict_adj = genAdjDict_parallel(verts.shape[0], faces.shape[0], faces)
   ## define start and end points
-  first_vi    = 0
-  last_vi     = len(verts)-1
-  first_point = verts[0,:]
-  last_point  = verts[last_vi,:]
-  printPoint(first_point, "first point: ")
-  printPoint(last_point,  "last point:  ")
+  tree = KDTree(verts)
+  _, start_vi = tree.query([20, 20,  0])
+  _, end_vi   = tree.query([ 0,  0, 20])
+  start_point = verts[start_vi,:]
+  end_point   = verts[end_vi,:]
+  printPoint(start_point, "start point: ")
+  printPoint(end_point,   "end point:   ")
   ## compute possible solutions
-  print("Solving maze...")
-  soln_path_grouped, soln_cost_grouped = aStar(verts, dict_adj, first_vi, last_vi)
-  ## create figure canvas and a 3D axis
-  fig = plt.figure()
-  ax = fig.add_subplot(111, projection="3d")
-  ## draw data
-  drawSurfaceMesh(ax, verts, faces)
-  ## draw solution(s)
+  print("Searching for geodesic path...")
+  soln_path_grouped, soln_cost_grouped = aStar(verts, dict_adj, start_vi, end_vi)
   if len(soln_path_grouped) > 0:
-    print(f"Found {len(soln_path_grouped)} possible solution(s)!")
+    str_end = "s!" if len(soln_path_grouped) > 1 else "!"
+    print(f"Found {len(soln_path_grouped)} possible geodesic path" + str_end)
     ## find index of the best (shortest) solution
     soln_index = np.argmin(soln_cost_grouped)
     soln_path = soln_path_grouped[soln_index]
     ## plot best solution
-    list_pos_x = [ pos[0] for pos in soln_path ]
-    list_pos_y = [ pos[1] for pos in soln_path ]
-    list_pos_z = [ pos[2] for pos in soln_path ]
-    ax.plot(list_pos_x, list_pos_y, list_pos_z, color="black", ls="-", lw=2, zorder=3)
+    x_geo = [ pos[0] for pos in soln_path ]
+    y_geo = [ pos[1] for pos in soln_path ]
+    z_geo = [ pos[2] for pos in soln_path ]
   else: print("Could not find a solution!")
-  ## draw start and end point
-  ax.plot(*first_point, "b.", zorder=3)
-  ax.plot(*last_point,  "r.", zorder=3)
-  ## label axes
-  ax.set_xlabel("x")
-  ax.set_ylabel("y")
-  ax.set_zlabel("z")
-  ## show figure
-  ax.view_init(15, 160)
-  fig.tight_layout()
-  fig.savefig("astar_3d.png")
-  plt.close(fig)
-  print("Saved figure.")
-  print(" ")
+  ## plot isosurface
+  mlab.triangular_mesh(verts[:,0], verts[:,1], verts[:,2], faces, representation="surface")
+  mlab.triangular_mesh(verts[:,0], verts[:,1], verts[:,2], faces, representation="mesh")
+  ## plot geodesic
+  if len(soln_path_grouped) > 0:
+    mlab.points3d(start_point[0], start_point[1], start_point[2])
+    mlab.points3d(end_point[0], end_point[1], end_point[2])
+    mlab.plot3d(x_geo, y_geo, z_geo, range(len(x_geo)), tube_radius=0.25)
+  ## show canvas
+  mlab.show()
   end_time = time.time()
   print(f"Elapsed time: {end_time - start_time:.3f} seconds")
 
 
-## program entry point
+## ###############################################################
+## PROGRAM ENTRY POINT
+## ###############################################################
 if __name__ == "__main__":
-    main()
+  main()
 
-## end of program
+
+## END OF PROGRAM

@@ -1,10 +1,9 @@
 ## ###############################################################
 ## MODULES
 ## ###############################################################
-import os, re
+import os, re, tqdm
 import numpy as np
 
-from tqdm.auto import tqdm
 
 
 ## ###############################################################
@@ -29,7 +28,7 @@ def loopListWithUpdates(input_list, bool_hide_updates=False):
     lst_len = len(input_list)
     return zip(
         input_list,
-        tqdm(
+        tqdm.auto.tqdm(
             range(lst_len),
             total   = lst_len - 1,
             disable = (lst_len < 3) or bool_hide_updates
