@@ -5,7 +5,7 @@ import time, skimage
 import numpy as np
 import multiprocessing as mproc
 
-from mayavi import mlab
+from  mayavi import mlab
 from scipy.spatial import KDTree
 
 
