@@ -1,5 +1,5 @@
 ## based on: Nicholas-Swift/astar.py
-## https://gist.github.com/Nicholas-Swift/003e1932ef2804bebef2710527008f44
+## https://gist.dist_trvldithub.com/Nicholas-Swift/003e1932ef2804bebef2710527008f44
 
 
 ## ###############################################################
@@ -24,9 +24,9 @@ class Node():
   def __init__(self, parent=None, pos=None):
     self.parent = parent
     self.pos = pos
-    self.g = 0 # distance from start
-    self.h = 0 # distance to goal
-    self.f = 0 # combined distances
+    self.dist_trvld = 0 # distance from start
+    self.dist_to_go = 0 # distance to goal
+    self.total_dist = 0 # combined distances
 
   def __eq__(self, other) -> bool:
     if not isinstance(other, Node): return False
@@ -34,11 +34,11 @@ class Node():
 
   def __le__(self, other) -> bool:
     if not isinstance(other, Node): return False
-    return self.f < other.f
+    return self.total_dist < other.total_dist
 
   def __gt__(self, other) -> bool:
     if not isinstance(other, Node): return False
-    return self.f > other.f
+    return self.total_dist > other.total_dist
 
   def __repr__(self) -> str:
     return str(self.pos)
@@ -85,7 +85,7 @@ def aStar2D(maze, start_cell, end_cell) -> list:
         soln_path.append(prev_node.pos)
         prev_node = prev_node.parent
       soln_paths_grouped.append(soln_path[::-1])
-      soln_costs_grouped.append(current_node.f)
+      soln_costs_grouped.append(current_node.total_dist)
     ## GENERATE LIST OF VALID NEIGHBOURING CELLS
     ## =========================================
     for rel_index in [
@@ -107,12 +107,12 @@ def aStar2D(maze, start_cell, end_cell) -> list:
         continue
       neighbour = Node(parent=current_node, pos=neighbour_pos)
       ## define score values
-      neighbour.g = current_node.g + 1
-      neighbour.h = np.sqrt(
+      neighbour.dist_trvld = current_node.dist_trvld + 1
+      neighbour.dist_to_go = np.sqrt(
         (neighbour.pos[0] - end_node.pos[0])**2 +
         (neighbour.pos[1] - end_node.pos[1])**2
       )
-      neighbour.f = neighbour.g + neighbour.h
+      neighbour.total_dist = neighbour.dist_trvld + neighbour.dist_to_go
       ## check that the neighbour is not already in the open list
       if any([
         (neighbour == node) and (node < neighbour)
@@ -156,8 +156,8 @@ def main():
     [1,0,0,0,1,0,1,0,0,0,1,0,0,0,1,0,1,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,1,0,0,0,1],
     [1,1,1,1,1,0,1,0,1,0,1,1,1,0,1,1,1,0,1,1,1,0,1,1,1,0,1,0,1,1,1,0,1,0,1,0,1,0,1,1,1],
     [1,0,0,0,0,0,1,0,1,0,1,0,0,0,1,0,0,0,0,0,1,0,1,0,0,0,1,0,1,0,0,0,1,0,1,0,0,0,0,0,1],
-    [1,1,1,0,1,1,1,1,1,1,1,0,1,0,1,1,1,1,1,0,1,1,1,0,1,1,1,1,1,0,1,0,1,0,1,0,1,0,1,1,1],
-    [1,0,0,0,0,0,1,0,1,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,1,0,1,0,1,0,1,0,1,0,1],
+    [1,1,1,0,1,1,1,1,1,0,1,0,1,0,1,1,1,1,1,0,1,1,1,0,1,1,1,1,1,0,1,0,1,0,1,0,1,0,1,1,1],
+    [1,0,0,0,0,0,0,0,1,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,1,0,1,0,1,0,1,0,1,0,1],
     [1,0,1,1,1,1,1,0,1,0,1,1,1,0,1,1,1,1,1,0,1,1,1,0,1,1,1,0,1,0,1,1,1,0,1,1,1,1,1,0,1],
     [1,0,0,0,0,0,0,0,1,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,1,0,1,0,1,0,1,0,1,0,0,0,0,0,0,0,1],
     [1,0,1,1,1,1,1,1,1,0,1,1,1,0,1,0,1,1,1,1,1,1,1,1,1,0,1,0,1,0,1,0,1,1,1,1,1,1,1,1,1],
@@ -184,7 +184,7 @@ def main():
     [1,0,1,0,1,0,0,0,1,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,1,0,1,0,1,0,0,0,1,0,1,0,1,0,1,0,1],
     [1,0,1,0,1,0,1,1,1,1,1,0,1,0,1,1,1,1,1,0,1,0,1,1,1,0,1,0,1,1,1,0,1,0,1,0,1,0,1,0,1],
     [1,0,0,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,1,0,1],
-    [1,1,1,1,1,0,1,1,1,0,1,0,1,0,1,1,1,0,1,0,1,1,1,1,1,1,1,0,1,1,1,0,1,1,1,1,1,0,1,0,1],
+    [1,1,1,1,1,0,1,1,1,0,1,0,1,0,1,1,1,0,1,0,1,0,1,1,1,1,1,0,1,1,1,0,1,1,1,1,1,0,1,0,1],
     [1,0,0,0,1,0,1,0,0,0,1,0,1,0,1,0,1,0,1,0,1,0,0,0,0,0,1,0,1,0,1,0,0,0,1,0,0,0,1,0,1],
     [1,0,1,0,1,0,1,1,1,0,1,0,1,1,1,0,1,0,1,0,1,0,1,1,1,1,1,1,1,0,1,0,1,1,1,0,1,0,1,0,1],
     [1,0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,1,0,1,0,1],

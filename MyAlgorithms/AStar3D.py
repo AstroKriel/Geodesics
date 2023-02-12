@@ -1,12 +1,14 @@
 ## ###############################################################
 ## MODULES
 ## ###############################################################
-import time, skimage
+import time
 import numpy as np
 import multiprocessing as mproc
 
-from  mayavi import mlab
+from mayavi import mlab
 from scipy.spatial import KDTree
+
+from PlotIsosurface import genPointCloud
 
 
 ## ###############################################################
@@ -31,28 +33,6 @@ def getFlatNUniqueList(lol):
 
 def printPoint(point, pre=""):
   print(f"{pre}{point[0]:.3f}, {point[1]:.3f}, {point[2]:.3f}")
-
-
-## ###############################################################
-## COMPUTE ISOSURFACE
-## ###############################################################
-def genPointCloud(implicit_func=gyroid, res=100):
-  ## define domain range
-  xmin, xmax = -np.pi, np.pi
-  ymin, ymax = -np.pi, np.pi
-  zmin, zmax = -np.pi, np.pi
-  ## generate a grid of points
-  x_3d, y_3d, z_3d = np.meshgrid(
-    np.linspace(xmin, xmax, res),
-    np.linspace(ymin, ymax, res),
-    np.linspace(zmin, zmax, res)
-  )
-  ## evaluate gyroid function at each point in domain
-  F = implicit_func(x_3d, y_3d, z_3d)
-  ## extract the gyroid isosurface
-  verts, faces, normals, values = skimage.measure.marching_cubes(F, 0)
-  ## return useful mesh information
-  return verts, faces, normals
 
 
 ## ###############################################################
@@ -88,7 +68,9 @@ def genAdjDict_helper(point_index, num_faces, faces):
       if point_index in faces[face_index]
     ])
 
-def genAdjDict_parallel(num_points, num_faces, faces):
+def genAdjDict_parallel(verts, faces):
+  num_points = verts.shape[0]
+  num_faces  = faces.shape[0]
   with mproc.Pool() as pool_obj:
     return dict(pool_obj.starmap(
       genAdjDict_helper,
@@ -215,7 +197,7 @@ def main():
   res = 20
   verts, faces, normals = genPointCloud(implicit_func=gyroid, res=res)
   print("Computing adjacency dictionary...")
-  dict_adj = genAdjDict_parallel(verts.shape[0], faces.shape[0], faces)
+  dict_adj = genAdjDict_parallel(verts, faces)
   ## define start and end points
   tree = KDTree(verts)
   _, start_vi = tree.query([20, 20,  0])
