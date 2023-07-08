@@ -1,6 +1,6 @@
 # Geodesics
 
-For the moment, if you are interested, dig into the codes under `MyAlgorithms`.
+For the moment, only dig into the codes under `MyAlgorithms`. The other bits of codes are a work in progress.
 
 `AStar3D.py` produces the following:
 
