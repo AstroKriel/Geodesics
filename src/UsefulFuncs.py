@@ -68,22 +68,4 @@ def createFilePath(folder_names):
     ]) )
 
 
-## ###############################################################
-## WORKING WITH LISTS / ARRAYS
-## ###############################################################
-def loopListWithUpdates(input_list, bool_hide_updates=False):
-    lst_len = len(input_list)
-    return zip(
-        input_list,
-        tqdm.auto.tqdm(
-            range(lst_len),
-            total   = lst_len - 1,
-            disable = (lst_len < 3) or bool_hide_updates
-        )
-    )
-
-def getIndexClosestValue(input_vals, target_value):
-    return np.argmin(np.abs( np.array(input_vals) - target_value ))
-
-
 ## END OF LIBRARY

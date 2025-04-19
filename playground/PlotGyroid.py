@@ -3,12 +3,11 @@
 ## ###############################################################
 import time
 import numpy as np
-import matplotlib.pyplot as plt
 
 from mayavi import mlab
 
 from MyAlgorithms.PlotIsosurface import genPointCloud
-from MyAlgorithms.AStar3D import genAdjDict_parallel, aStar
+from MyAlgorithms.AStar3D import genAdjDict_parallel
 
 
 ## ###############################################################

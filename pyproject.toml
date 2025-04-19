@@ -1,0 +1,12 @@
+[project]
+name = "geodesics"
+version = "0.1.0"
+description = "trace geodesics on manifolds using numerical search algorithms"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "configobj>=5.0.9",
+    "matplotlib>=3.10.1",
+    "mayavi>=4.8.2",
+    "numpy>=2.2.4",
+]
