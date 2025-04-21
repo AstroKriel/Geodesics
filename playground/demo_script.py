@@ -2,22 +2,12 @@
 ## MODULES
 ## ###############################################################
 import time
-import numpy as np
-
 from mayavi import mlab
-
-from MyAlgorithms.PlotIsosurface import genPointCloud
-from MyAlgorithms.AStar3D import genAdjDict_parallel
 
 
 ## ###############################################################
 ## HELPER FUNCTIONS
 ## ###############################################################
-def gyroid(x, y, z):
-  return np.cos(x) * np.sin(y) + np.cos(y) * np.sin(z) + np.cos(z) * np.sin(x)
-
-def printPoint(point, pre=""):
-  print(f"{pre}[{point[0]:.3f}, {point[1]:.3f}, {point[2]:.3f}],")
 
 
 ## ###############################################################
@@ -39,7 +29,6 @@ def main():
     if len(dict_adj[vi]) < 4:
       list_vi.append(vi)
       mlab.points3d(verts[vi,0], verts[vi,1], verts[vi,2])
-      printPoint(verts[vi])
   ## show canvas
   mlab.show()
   end_time = time.time()

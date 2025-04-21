@@ -10,3 +10,7 @@ dependencies = [
     "mayavi>=4.8.2",
     "numpy>=2.2.4",
 ]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

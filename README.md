@@ -1,7 +1,5 @@
 # Geodesics
 
-For the moment, only dig into the codes under `./MyAlgorithms/`. The other bits are a work in progress.
 
-`AStar3D.py` produces the following:
+![plot](./gallery/geodesic.gif)
 
-![plot](./MyAlgorithms/geodesic.gif)
