@@ -31,7 +31,7 @@ def time_function(func):
 def main():
   ## generate surface mesh from implicit function
   vertices, faces, _ = generate_surface.generate_surface_mesh(
-    implicit_func = implicit_surfaces.goursat_tangle,
+    implicit_func = implicit_surfaces.goursat_tangle(),
     domain_bounds = [-5, 5],
     num_points    = 50,
   )
