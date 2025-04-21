@@ -1,7 +1,13 @@
+## ###############################################################
+## DEPENDENCIES
+## ###############################################################
 import heapq
 from typing import List, Tuple, Optional
 
 
+## ###############################################################
+## NODE CLASS
+## ###############################################################
 class Node:
   def __init__(
       self,
@@ -10,9 +16,9 @@ class Node:
     ):
     self.position = position
     self.parent = parent
-    self.distance_traveled = 0  # from start (g)
-    self.estimated_distance_to_goal = 0  # heuristic (h)
-    self.total_estimated_cost = 0  # g + h
+    self.distance_traveled = 0 # from start (g)
+    self.estimated_distance_to_goal = 0 # heuristic (h)
+    self.total_estimated_cost = 0 # g + h
 
   def __eq__(self, other):
     return isinstance(other, Node) and self.position == other.position
@@ -23,6 +29,10 @@ class Node:
   def __repr__(self):
     return f"Node({self.position})"
 
+
+## ###############################################################
+## HELPER FUNCTIONS
+## ###############################################################
 def _heuristic_estimate(
     current: Tuple[int, int],
     goal: Tuple[int, int]
@@ -34,13 +44,13 @@ def _heuristic_estimate(
 
 def _get_walkable_neighbors(
     position: Tuple[int, int],
-    grid: List[List[int]]
+    maze: List[List[int]]
   ) -> List[Tuple[int, int]]:
   directions = [(1, 0), (0, 1), (-1, 0), (0, -1)]
   neighbors = []
   for dx, dy in directions:
     x, y = position[0] + dx, position[1] + dy
-    if 0 <= x < len(grid) and 0 <= y < len(grid[0]) and grid[x][y] == 0:
+    if 0 <= x < len(maze) and 0 <= y < len(maze[0]) and maze[x][y] == 0:
       neighbors.append((x, y))
   return neighbors
 
@@ -53,12 +63,18 @@ def _reconstruct_path(end_node: Node) -> List[Tuple[int, int]]:
   path.reverse()
   return path
 
+
+## ###############################################################
+## A-STAR ALGORITHM
+## ###############################################################
 def a_star_2d(
-    grid  : List[List[int]],
+    maze  : List[List[int]],
     start : Tuple[int, int],
     goal  : Tuple[int, int],
     use_priority_queue = True
   ) -> Tuple[List[Tuple[int, int]], float]:
+  ## make sure the input maze is a list of lists
+  if hasattr(maze, "tolist"): maze = maze.tolist()
   start_node = Node(start)
   start_node.distance_traveled = 0
   start_node.estimated_distance_to_goal = _heuristic_estimate(start, goal)
@@ -80,7 +96,7 @@ def a_star_2d(
     if current_node.position == goal:
       return _reconstruct_path(current_node), current_node.total_estimated_cost
     closed_positions.add(current_node.position)
-    for neighbor_position in _get_walkable_neighbors(current_node.position, grid):
+    for neighbor_position in _get_walkable_neighbors(current_node.position, maze):
       if neighbor_position in closed_positions:
         continue
       neighbor_node = Node(neighbor_position, parent=current_node)

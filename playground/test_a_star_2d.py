@@ -49,7 +49,7 @@ def main():
   ax.plot(start[1], start[0], color="green", marker="o", ms=15, zorder=3)
   ax.plot(goal[1], goal[0], color="red", marker="o", ms=15, zorder=3)
   print("Solving maze...")
-  path, cost = a_star_2d(maze.tolist(), start, goal, use_priority_queue=True)
+  path, cost = a_star_2d(maze.tolist(), start, goal)
   if len(path) > 0:
     print(f"Found a solution of cost {cost:.2f} with {len(path)} steps")
     y_path = [ pos[0] for pos in path ]

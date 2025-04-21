@@ -5,10 +5,10 @@ description = "trace geodesics on manifolds using numerical search algorithms"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
-    "configobj>=5.0.9",
     "matplotlib>=3.10.1",
-    "mayavi>=4.8.2",
     "numpy>=2.2.4",
+    "pyvista>=0.45.0",
+    "scikit-image>=0.25.2",
 ]
 
 [build-system]
