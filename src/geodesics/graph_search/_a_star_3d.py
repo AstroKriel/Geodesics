@@ -1,14 +1,13 @@
+## ###############################################################
+## DEPENDANCIES
+## ###############################################################
 import heapq
 from typing import List, Dict, Tuple, Optional
 
 
-def _euclidean_distance(
-  p1: Tuple[float, float, float],
-  p2: Tuple[float, float, float]
-) -> float:
-  dx, dy, dz = p2[0] - p1[0], p2[1] - p1[1], p2[2] - p1[2]
-  return (dx**2 + dy**2 + dz**2) ** 0.5
-
+## ###############################################################
+## NODE CLASS
+## ###############################################################
 class Node:
   def __init__(self, vertex_index: int, parent: Optional['Node'] = None):
     self.vertex_index = vertex_index
@@ -26,6 +25,17 @@ class Node:
   def __repr__(self):
     return f"Node(vi={self.vertex_index})"
 
+
+## ###############################################################
+## HELPER FUNCTIONS
+## ###############################################################
+def _euclidean_distance(
+  p1: Tuple[float, float, float],
+  p2: Tuple[float, float, float]
+) -> float:
+  dx, dy, dz = p2[0] - p1[0], p2[1] - p1[1], p2[2] - p1[2]
+  return (dx**2 + dy**2 + dz**2) ** 0.5
+
 def _reconstruct_path(
   end_node: Node,
   vertices: List[Tuple[float, float, float]]
@@ -38,6 +48,10 @@ def _reconstruct_path(
   path.reverse()
   return path
 
+
+## ###############################################################
+## A-STAR ALGORITHM
+## ###############################################################
 def a_star_3d(
   vertices: List[Tuple[float, float, float]],
   adjacency: Dict[int, List[int]],
@@ -83,3 +97,6 @@ def a_star_3d(
       if not better_path_exists:
         heapq.heappush(open_nodes, neighbor_node)
   return solution_paths, solution_costs
+
+
+## END OF MODULE
