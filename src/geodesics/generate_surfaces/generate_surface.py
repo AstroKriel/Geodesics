@@ -12,14 +12,15 @@ import multiprocessing
 def generate_surface_mesh(
     implicit_func,
     domain_bounds : tuple[float, float] = (-numpy.pi, numpy.pi),
-    num_points    : int = 100
+    num_points    : int = 100,
+    level         : float = 0.0
   ):
   values = numpy.linspace(domain_bounds[0], domain_bounds[1], num_points)
   x_3d, y_3d, z_3d = numpy.meshgrid(values, values, values)
   ## evaluate the function across the volume
   sfield_values = implicit_func(x_3d, y_3d, z_3d)
   ## the isosurface is defined as where the function is zero
-  vertices, faces, normals, _ = skimage.measure.marching_cubes(sfield_values, 0)
+  vertices, faces, normals, _ = skimage.measure.marching_cubes(sfield_values, level)
   return vertices, faces, normals
 
 def generate_adjacency_map(vertices, faces):
