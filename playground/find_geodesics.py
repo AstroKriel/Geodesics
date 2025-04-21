@@ -1,11 +1,11 @@
 ## ###############################################################
-## MODULES
+## DEPENDANCIES
 ## ###############################################################
 import time
 import numpy
 import pyvista
 from scipy.spatial import KDTree
-from geodesics.generate_surfaces import surfaces, generate_surface
+from geodesics.generate_surfaces import implicit_surfaces, generate_surface
 from geodesics.graph_search import a_star_3d
 
 
@@ -31,7 +31,7 @@ def time_function(func):
 def main():
   ## generate surface mesh from implicit function
   vertices, faces, _ = generate_surface.generate_surface_mesh(
-    implicit_func = surfaces.goursat_tangle,
+    implicit_func = implicit_surfaces.goursat_tangle,
     domain_bounds = [-5, 5],
     num_points    = 50,
   )
