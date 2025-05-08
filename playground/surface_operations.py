@@ -44,7 +44,7 @@ def main():
   for func in surfaces_to_plot:
     vertices, faces, _ = generate_surface.generate_surface_mesh(
       implicit_func = func,
-      domain_bounds = [-2, 15],
+      box_bounds    = [-2, 15],
       num_points    = 200
     )
     num_faces = faces.shape[0]
