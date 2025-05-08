@@ -32,7 +32,7 @@ def main():
   ## generate surface mesh from implicit function
   vertices, faces, _ = generate_surface.generate_surface_mesh(
     implicit_func = implicit_surfaces.goursat_tangle(),
-    domain_bounds = [-5, 5],
+    box_bounds    = [-5, 5],
     num_points    = 50,
   )
   ## find closest vertices to start and end point

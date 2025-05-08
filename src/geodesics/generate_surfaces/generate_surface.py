@@ -11,11 +11,11 @@ import multiprocessing
 ## ###############################################################
 def generate_surface_mesh(
     implicit_func,
-    domain_bounds : tuple[float, float] = (-numpy.pi, numpy.pi),
-    num_points    : int = 100,
-    level         : float = 0.0
+    box_bounds : tuple[float, float],
+    num_points : int = 100,
+    level      : float = 0.0
   ):
-  values = numpy.linspace(domain_bounds[0], domain_bounds[1], num_points)
+  values = numpy.linspace(box_bounds[0], box_bounds[1], num_points)
   x_3d, y_3d, z_3d = numpy.meshgrid(values, values, values)
   ## evaluate the function across the volume
   sfield_values = implicit_func(x_3d, y_3d, z_3d)
@@ -70,7 +70,6 @@ def generate_adjacency_map_parallel(vertices, faces):
       ]
     )
   return dict(adjacency_items)
-
 
 
 ## END OF MODULE
